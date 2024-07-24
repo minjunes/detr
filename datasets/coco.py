@@ -9,10 +9,18 @@ from pathlib import Path
 import torch
 import torch.utils.data
 import torchvision
+
+import sys
+import os
+# Append pycocotools to the Python path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'coco', 'PythonAPI', 'pycocotools'))
+
 from pycocotools import mask as coco_mask
 
-import datasets.transforms as T
-
+try:
+    import datasets.transforms as T
+except:
+    from . import transforms as T
 
 class CocoDetection(torchvision.datasets.CocoDetection):
     def __init__(self, img_folder, ann_file, transforms, return_masks):

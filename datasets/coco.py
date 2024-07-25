@@ -34,9 +34,8 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         target = {'image_id': image_id, 'annotations': target}
         img, target = self.prepare(img, target)
         if self._transforms is not None:
-            img, target = self._transforms(img, target)
-        return img, target
-
+            img1, target = self._transforms(img, target)
+        return img1, target, img
 
 def convert_coco_poly_to_mask(segmentations, height, width):
     masks = []
@@ -53,7 +52,6 @@ def convert_coco_poly_to_mask(segmentations, height, width):
     else:
         masks = torch.zeros((0, height, width), dtype=torch.uint8)
     return masks
-
 
 class ConvertCocoPolysToMask(object):
     def __init__(self, return_masks=False):
@@ -151,8 +149,7 @@ def make_coco_transforms(image_set):
 
     raise ValueError(f'unknown {image_set}')
 
-
-def build(image_set, args):
+def build(image_set, args, transform=None):
     root = Path(args.coco_path)
     assert root.exists(), f'provided COCO path {root} does not exist'
     mode = 'instances'
@@ -162,5 +159,5 @@ def build(image_set, args):
     }
 
     img_folder, ann_file = PATHS[image_set]
-    dataset = CocoDetection(img_folder, ann_file, transforms=make_coco_transforms(image_set), return_masks=args.masks)
-    return dataset
+    
+    return CocoDetection(img_folder, ann_file, transforms=make_coco_transforms(image_set), return_masks=args.masks)

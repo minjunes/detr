@@ -68,7 +68,7 @@ class HungarianMatcher(nn.Module):
         cost_class = -out_prob[:, tgt_ids]
 
         # Compute the L1 cost between boxes
-        cost_bbox = torch.cdist(out_bbox, tgt_bbox, p=1)
+        cost_bbox = pnorm1_dist(out_bbox, tgt_bbox)
 
         # Compute the giou cost betwen boxes
         cost_giou = -generalized_box_iou(box_cxcywh_to_xyxy(out_bbox), box_cxcywh_to_xyxy(tgt_bbox))
@@ -85,3 +85,8 @@ def build_matcher(args):
     return HungarianMatcher(cost_class=args.set_cost_class, cost_bbox=args.set_cost_bbox, cost_giou=args.set_cost_giou)
 def _build_matcher(cost_class, cost_bbox, cost_giou):
     return HungarianMatcher(cost_class=cost_class, cost_bbox=cost_bbox, cost_giou=cost_giou)
+# https://planetmath.org/vectorpnorm
+# pnorm1 dist between each pair of 
+def pnorm1_dist(a,b):
+    return torch.sum(torch.abs(a[:, None, :] - b[None, :, :]), dim=2)
+
